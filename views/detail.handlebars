@@ -1,0 +1,200 @@
+<section class="product-details spad">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6 col-md-6">
+        <div class="product__details__pic">
+          <div class="product__details__pic__item">
+            <img class="product__details__pic__item--large" src="imagen/{{post.dataValues.imagen}}" alt="">
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-6">
+        <div class="product__details__text">
+          <h3>{{post.dataValues.title}}</h3>
+          <div class="product__details__rating" id="div_califications">
+
+              ({{likes}})<a href="#" class="upps" id="actionUp" style="font-size: 30px;margin-right: 20px;"><i class="fa fa-thumbs-up"></i></a>
+              <a onclick="showUserLike()" class="btn btn-primary">Ver usuarios</a>
+              ({{dislikes}})<a href="#" class="down" id="actionDown" style="font-size: 30px;"><i class="fa fa-thumbs-down"></i></a>
+          </div>
+          <p>{{post.dataValues.content}}</p>
+
+          <ul>
+            <li><b>Realizado por: </b> <span>{{post.dataValues.user.dataValues.name}}</span></li>
+            <li><b>Categoria: </b> <span>{{post.dataValues.category.dataValues.name}}</span></li>
+            <li><b>Fecha Publicación: </b> <span>{{post.dataValues.date_post}}</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="product__details__tab">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item" id="link_comments">
+              <a class="nav-link" data-toggle="tab" href="#tabs-1" role="tab" aria-selected="true">Añadir Comentario</a>
+            </li>
+            <li class="nav-item">              
+              <a class="nav-link active" data-toggle="tab" href="#tabs-2" role="tab" aria-selected="false">Comentarios</a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane" id="tabs-1" role="tabpanel">
+                <form id="formAddComent">
+                  <div class="form-group">                    
+                    <textarea class="form-control" name="comment_post" id="comment_post" rows="3"></textarea>
+                  </div>
+                  <input type="hidden" name="id_post" id="id_post" value="{{post.dataValues.id}}">
+                  <button type="submit" class="site-btn">Agregar Comentario</button>
+                </form>
+            </div>
+            <div class="tab-pane active" id="tabs-2" role="tabpanel">
+              <div class="blog__details__widget">
+              <br>
+              {{#if comments}}                  
+                {{#each comments}}
+                  <ul>
+                    <li><span>Usuario:</span> {{this.dataValues.user.dataValues.name}} <span> |  Fecha: </span>{{this.dataValues.date}}</li>
+                    <li>{{this.dataValues.content}}</li>
+                  </ul>
+                  <br>
+                {{/each}}
+              {{else}}
+                <span>No hay comentarios agregados</span>
+              {{/if}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{{>userslike}}
+<script>
+
+  if(token){
+    document.getElementById("link_comments").style.display = "block";    
+  }else{
+    document.getElementById("link_comments").style.display = "none";    
+  }
+
+  const showUserLike = () =>{    
+    var modal = document.getElementById('modalUsersLike');
+    var modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+  }
+
+  let formAddComent = document.getElementById('formAddComent')
+  let actionUp      = document.getElementById('actionUp');
+  let actionDown    = document.getElementById('actionDown');
+
+  formAddComent.addEventListener("submit",(event) => {
+    event.preventDefault();
+
+    var fieldsValidate = {
+      comment_post: { type: 'input', name: 'Comentario' }
+    };
+
+    //Si paso todas las validaciones
+    if (validateForm(fieldsValidate, 'formAddComent', false)) {
+      
+      const headers = new Headers();
+      headers.append("authorization", "Bearer " + localStorage.getItem("jwt"));
+
+      fetch("http://localhost:3002/api/add_comment", {
+        method: "POST",
+        headers,
+        body: new FormData(formAddComent),
+        redirect: 'follow'
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('data Recibida: ', data);
+          if(data.code == 201){
+            formAddComent.reset();
+            alertSystem('success',data.message);
+            setTimeout(() => {
+              location.reload();
+            }, "2000");
+            
+          }else{
+            tostr.error(data.message)
+          }
+          
+        })
+        .catch(error => {
+          console.log(error);
+        })
+    }
+  })
+
+  actionUp.addEventListener('click', (event) => {
+    event.preventDefault();
+    if (token) {
+      
+      let objLike = {        
+        id_post: {{ post.dataValues.id }}
+      }      
+      
+      const headers = new Headers();
+      headers.append("authorization", "Bearer " + localStorage.getItem("jwt"));
+      headers.append("Content-Type", "application/json");  
+
+      fetch("http://localhost:3002/api/add_like", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(objLike),
+        redirect: 'follow'
+      })
+        .then(response => response.json())
+        .then(data => {
+          
+          if(data.code == 201){
+            alertSystem('success',data.message)
+          }else{
+            toastr.error(data.message)
+          }
+        })
+        .catch(error => {
+          console.log(error);
+          toastr.error(data.message)
+        })
+        
+    }else{
+      alertSystem('error','Debe estar logeado para dar like')
+    }
+  })
+  
+  actionDown.addEventListener('click', (event) => {
+    event.preventDefault();
+    if (token) {
+      let objLike = {        
+        id_post: {{ post.dataValues.id }}
+      }      
+      
+      const headers = new Headers();
+      headers.append("authorization", "Bearer " + localStorage.getItem("jwt"));
+      headers.append("Content-Type", "application/json");  
+
+      fetch("http://localhost:3002/api/add_dislike", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(objLike),
+        redirect: 'follow'
+      })
+        .then(response => response.json())
+        .then(data => {
+          
+          if(data.code == 201){
+            alertSystem('success',data.message)
+          }else{
+            toastr.error(data.message)
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        })
+    } else {
+      alertSystem('error', 'Debe estar logeado para dar dislike')
+    }
+  })
+</script>

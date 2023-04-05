@@ -1,0 +1,88 @@
+<!-- Header Section Begin -->
+<header class="header">
+  <div class="header__top">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="header__top__right">
+            <div class="header__top__right__auth" id="linkLogin">
+              <a href="#" id="login_btn"><i class="fa fa-user"></i> Login</a>
+            </div>
+            <div class="header__top__right__auth" id="linkLogout" style="display: none;">
+              <a href="#" id="logout_btn"><i class="fa fa-arrow-right"></i> Cerrar Sesión</a>
+            </div>
+            <div class="header__top__right__auth" id="linkRegister">
+              <a href="#" id="register_btn">| Registro</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-3">
+        <div class="header__logo">
+          <a href="/"><img src="img/logo_generic.png" alt=""></a>
+        </div>
+      </div>
+      <div class="col-lg-9">
+        <nav class="header__menu">
+          <ul>
+            <li class="active"><a href="/">Inicio</a></li>
+            <li id="linkPost"><a id="btn_post" href="#">Publicar</a></li>
+            <li><a href="/">Categorias</a>
+              <ul class="header__menu__dropdown">
+                {{#if categories}}    
+                  <li><a href="/">Todas</a></li>
+                {{#each categories}}                             
+                  <li><a href="/filter/{{this.id}}">{{this.name}}</a></li>
+                {{/each}}
+                {{else}}
+                  <li class="active" data-filter="*">Todas</li>
+                {{/if}}
+              </ul>
+            </li>
+            <li><a href="/contacto">Contacto</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+    <div class="humberger__open">
+      <i class="fa fa-bars"></i>
+    </div>
+  </div>
+</header>
+<!-- Header Section End -->
+<script>
+  let token = localStorage.getItem('jwt');
+
+  let linkPost = document.getElementById("linkPost");
+  let linkLogin = document.getElementById("linkLogin");
+  let linkLogout = document.getElementById("linkLogout");
+  let linkRegister = document.getElementById("linkRegister");
+
+  if (token) {
+    linkLogout.style.display = "block";
+    linkRegister.style.display = "none";
+    linkLogin.style.display = "none";
+  } else {
+    linkPost.style.display = "none";
+    linkLogout.style.display = "none";
+  }
+
+  btn_post.addEventListener("click", (event) => {
+    event.preventDefault();
+    if (token) {
+      location.href = "/publicar?token=" + token
+    } else {
+      toastr.error("Debe loguearse para obtener permisos a esa ruta.");
+    }
+  })
+
+  linkLogout.addEventListener("click", (event) => {
+    localStorage.clear();
+    location.href = "/";
+  })
+
+</script>

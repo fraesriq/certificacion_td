@@ -1,0 +1,99 @@
+{{#if error}}
+<h2 class="text-center mt-3">{{error}}</h2>
+{{else}}
+<div class="container">
+  <div class="checkout__form">
+    <span>Bienvenido </span><h4>{{user.name}}</h4>
+    <form action="#" id="formAddPost" name="formAddPost">
+      <div class="row">
+        <div class="col-lg-8 col-md-6">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="checkout__input">
+                <p>Titulo de la Noticia<span>*</span></p>
+                <input type="text" name="postTitle" id="postTitle">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="checkout__input">
+                <p>Categoria<span>*</span></p>
+                <select name="postCategoria" id="postCategoria">
+                  <option value="-">Seleccione ...</option>
+                  {{#each categories}}
+                  <option value="{{this.id}}">{{this.name}}</option>
+                  {{/each}}
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="checkout__input">
+            <p>Contenido de la Noticia<span>*</span></p>
+            <textarea name="postContent" id="postContent" style="width: 100%;" rows="5" maxlength="4000"></textarea>
+          </div>
+          <div class="checkout__input">
+            <p>Imagen<span>*</span></p>
+            <input type="file" name="foto" id="foto">
+          </div>
+          <button type="submit" class="site-btn">Enviar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  //EVENTO SUBMIT FORMULARIO CONTACTOS
+  formAddPost.addEventListener("submit", (event) => {
+
+    event.preventDefault();
+
+    var fieldsValidate = {
+      postTitle: { type: 'input', name: 'Titulo' },
+      postCategoria: { type: 'select', name: 'Categoria' },
+      postContent: { type: 'input', name: 'Contenido' },
+      foto: { type: 'input', name: 'Imagen' }
+    };
+
+    //Si paso todas las validaciones
+    if (validateForm(fieldsValidate, 'formContact', false)) {
+
+      const headers = new Headers();
+      headers.append("authorization", "Bearer " + localStorage.getItem("jwt"));
+
+      fetch("http://localhost:3002/api/add_post", {
+        method: "POST",
+        headers,
+        body: new FormData(formAddPost),
+        redirect: 'follow'
+      })
+        .then(response => {
+          if (response.status == 413) {
+            return alert("Imagen supera el limite permitido")
+          }
+          return response.json()
+        })
+        .then(data => {
+          console.log('data Recibida: ', data);
+          if (data.code === 201) {
+            formAddPost.reset();
+
+            alertSystem('success', data.message);
+
+            setTimeout(() => {
+              location.href = '/'
+            }, "2000");
+
+          } else {
+            toastr.error(data.message)
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        })
+
+    }
+
+  });
+</script>
+
+{{/if }}

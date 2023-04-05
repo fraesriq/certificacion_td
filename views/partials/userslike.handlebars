@@ -1,0 +1,17 @@
+<div class="modal fade" id="modalUsersLike" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Like de Usuarios:</h4>       
+      </div>   
+      <div class="modal-body mx-3">
+      <ul>
+        {{#each users_like}}
+        <li>{{this.dataValues.user.dataValues.name}}</li>
+        {{/each}}
+      </ul>
+      </div>
+    </div>
+  </div>
+</div>
