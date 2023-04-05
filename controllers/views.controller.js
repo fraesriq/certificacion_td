@@ -145,9 +145,22 @@ export const controllerShowPost = async (req, res) => {
         [sequelize.literal("to_char(date_post, 'DD-MM-YYYY')"), 'date_post'],
         'imagen'  
       ]
-    })    
+    })  
+    
+    let usersCalifications = await Califications.findAll({
+      where: {
+        postId: id,
+        type: 1
+      },
+      include: [
+        {
+          model: Users,
+          attributes: ['name']
+        }
+      ]
+    })
 
-    console.log(post)
+    console.log('usersCalifications: ',usersCalifications);
 
     if (post == null) throw new Error("No se encuentra el post seleccionado")
     
@@ -165,10 +178,10 @@ export const controllerShowPost = async (req, res) => {
       }
     })
 
-    let users_like = post.dataValues.califications;
+    let users_like = usersCalifications;
 
-    res.render('detail', {
-      users_like,
+    res.render('detail', {    
+      users_like,  
       likes,
       dislikes,
       categories,
