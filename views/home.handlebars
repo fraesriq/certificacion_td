@@ -29,7 +29,7 @@
 </section>
 
 <script>
-  const showDetail = (idPublicacion) => {    
+  const showDetail = (idPublicacion) => {        
     if (localStorage.getItem("jwt")) {
       location.href = `/detail/${idPublicacion}?token=` + localStorage.getItem("jwt")
     } else {

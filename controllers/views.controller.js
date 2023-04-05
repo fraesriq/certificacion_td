@@ -112,7 +112,7 @@ export const controllerShowPost = async (req, res) => {
   
   try {
     let { id } = req.params;
-
+    console.log('params:',req.params);
     let categories = await Categories.findAll({
       raw: true,
       attributes: ['id','name'],
@@ -136,13 +136,6 @@ export const controllerShowPost = async (req, res) => {
             'content',
             [sequelize.literal("to_char(date, 'DD-MM-YYYY')"), 'date']
           ]
-        },
-        {
-          model: Califications,
-          include: [Users],
-          where: {
-            type : 1
-          }
         }
       ],
       attributes: [
@@ -153,6 +146,8 @@ export const controllerShowPost = async (req, res) => {
         'imagen'  
       ]
     })    
+
+    console.log(post)
 
     if (post == null) throw new Error("No se encuentra el post seleccionado")
     
